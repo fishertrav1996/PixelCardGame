@@ -12,6 +12,8 @@ public class DragAndDrop : MonoBehaviour
     private bool isOverPlayerBattlefield;
     private bool canDrag = true;
 
+    private readonly int MAX_BATTLEFIELD_SIZE = 5;
+
     public GameObject Canvas;
 
 
@@ -36,10 +38,15 @@ public class DragAndDrop : MonoBehaviour
     {
         dragging = false;
 
-        if(isOverPlayerBattlefield)
+        if(isOverPlayerBattlefield & playerBattlefield != null)
         {
-            transform.SetParent(playerBattlefield.transform, false);
-            canDrag = false;
+            if(playerBattlefield.transform.childCount < MAX_BATTLEFIELD_SIZE){
+                transform.SetParent(playerBattlefield.transform, false);
+                canDrag = false;
+            }else{
+                transform.position = startPos;
+                transform.SetParent(startParent.transform, false);
+            }         
         }
         else
         {
