@@ -1,9 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Mirror;
 
-public class DragAndDrop : MonoBehaviour
+public class DragAndDrop : NetworkBehaviour
 {
+
+    public GameObject Canvas;
+    public Player Player;
 
     private bool dragging = false;
     private GameObject startParent;
@@ -14,28 +18,30 @@ public class DragAndDrop : MonoBehaviour
 
     private readonly int MAX_BATTLEFIELD_SIZE = 5;
 
-    public GameObject Canvas;
-
 
     // Start is called before the first frame update
     void Start()
     {
         Canvas = GameObject.Find("Canvas");
+        if(!hasAuthority)
+        {
+            canDrag = false;
+        }
     }
 
     public void BeginDrag()
     {
-        if(canDrag)
-        {
-            dragging = true;
-            startParent = transform.parent.gameObject;
-            startPos = transform.position;
-        }
-        
+        if(!canDrag) return;
+
+        dragging = true;
+        startParent = transform.parent.gameObject;
+        startPos = transform.position;
     }
 
     public void StopDrag()
     {
+        if(!canDrag) return;
+
         dragging = false;
 
         if(isOverPlayerBattlefield & playerBattlefield != null)
@@ -43,6 +49,9 @@ public class DragAndDrop : MonoBehaviour
             if(playerBattlefield.transform.childCount < MAX_BATTLEFIELD_SIZE){
                 transform.SetParent(playerBattlefield.transform, false);
                 canDrag = false;
+                NetworkIdentity networkIdentity = NetworkClient.connection.identity;
+                Player = networkIdentity.GetComponent<Player>();
+                Player.PlayCard(gameObject);
             }else{
                 transform.position = startPos;
                 transform.SetParent(startParent.transform, false);

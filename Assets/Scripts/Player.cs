@@ -57,20 +57,40 @@ public class Player : NetworkBehaviour
         }  
     }
 
+    public void PlayCard(GameObject playerCard)
+    {
+        CmdPlayCard(playerCard);
+    }
+
+    [Command]
+    void CmdPlayCard(GameObject playerCard)
+    {
+        RpcShowCard(playerCard, "Played");
+    }
+
     [ClientRpc]
     void RpcShowCard(GameObject playerCard, string type)
     {
         if(type == "Drawn")
         {
-            if(hasAuthority){
+            if(hasAuthority)
+            {
                 playerCard.transform.SetParent(PlayerHandArea.transform, false);
-            }else{
+            }else
+            {
                 playerCard.transform.SetParent(EnemyHandArea.transform, false);
             }
         }
         if(type == "Played")
         {
-
+            if(hasAuthority)
+            {
+                playerCard.transform.SetParent(PlayerBattlefield.transform, false);
+            }else
+            {
+                playerCard.transform.SetParent(EnemyBattlefield.transform, false);
+            }
+            
         }
     }
 
